@@ -2,48 +2,51 @@ const mongoose = require("mongoose");
 const crypto = require("crypto");
 const uuidv1 = required("uuid/v1");
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    maxlength: 32,
-    trim: true,
-  },
-  lastname: {
-    type: String,
-    maxlength: 32,
-    trim: true,
-  },
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      maxlength: 32,
+      trim: true,
+    },
+    lastname: {
+      type: String,
+      maxlength: 32,
+      trim: true,
+    },
 
-  email: {
-    type: String,
-    trim: true,
-    required: true,
-    unique: true,
-  },
+    email: {
+      type: String,
+      trim: true,
+      required: true,
+      unique: true,
+    },
 
-  userinfo: {
-    type: String,
-    trim: true,
-  },
+    userinfo: {
+      type: String,
+      trim: true,
+    },
 
-  encry_password: {
-    type: String,
-    required: true,
-  },
+    encry_password: {
+      type: String,
+      required: true,
+    },
 
-  salt: String,
+    salt: String,
 
-  role: {
-    type: Number,
-    default: 0,
-  },
+    role: {
+      type: Number,
+      default: 0,
+    },
 
-  purchases: {
-    type: Array,
-    default: [],
+    purchases: {
+      type: Array,
+      default: [],
+    },
   },
-});
+  { timestamps: true }
+);
 
 // virtual fields
 userSchema
@@ -77,4 +80,6 @@ userSchema.method = {
   },
 };
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+module.exports = User;
