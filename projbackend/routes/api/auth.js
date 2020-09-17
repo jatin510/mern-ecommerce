@@ -18,6 +18,11 @@ router.post(
   ],
   authController.signin
 );
+
 router.get("/signout", authController.signout);
+
+router.get("/test", authController.isSignedIn, (req, res) =>
+  res.send("protected")
+);
 
 module.exports = router;

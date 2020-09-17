@@ -1,5 +1,8 @@
 const User = require("../models/user");
 const { validationResult } = require("express-validator");
+const jwt = require("jsonwebtoken");
+const expressJwt = require("express-jwt");
+
 //     User Signup
 //
 //     name : String  //r
@@ -43,6 +46,7 @@ module.exports.signup = (req, res) => {
 // }
 
 module.exports.signin = (req, res) => {
+  console.log("signin");
   //   validation errors
   const errors = validationResult(req);
 
@@ -51,6 +55,7 @@ module.exports.signin = (req, res) => {
   }
 
   const { email, password } = req.body;
+
   User.findOne({ email }, (err, user) => {
     if (err || !user) {
       return res.status(400).json({
@@ -66,21 +71,57 @@ module.exports.signin = (req, res) => {
 
     // TODO
     // token creation
+    const token = jwt.sign({ _id: user._id }, process.env.SECRET);
+    // put token in cookie
+    res.cookie("token", token, { expire: new Date() + 99999 });
 
-    return res.status(200).json({ message: "User signed In" });
+    const { _id, name, email, role } = user;
+    return res.status(200).json({
+      message: "User signed In",
+      token,
+      user: { _id, email, name, role },
+    });
   });
 };
 
 // User signout
 
-module.exports.signout = (req, res) => {};
+module.exports.signout = (req, res) => {
+  res.clearCookie("token");
+
+  return res.status(200).json({
+    message: "Signout successfully",
+  });
+};
 
 // isAdmin
+module.exports.isAdmin = (req, res, next) => {
+  //if role === 0
+  if (req.profile.role === 0) {
+    return res.status(403).json({
+      error: "You are not ADMIN",
+    });
+  }
 
-module.exports.isAdmin = (req, res) => {};
+  next();
+};
 
 // isAuthenticated
-module.exports.isAuthenticated = (req, res) => {};
+module.exports.isAuthenticated = (req, res, next) => {
+  let checker = req.profile && req.auth && req.profile._id === req.auth._id;
+
+  if (!checker) {
+    return res.status(403).json({
+      error: "ACCESS DENIED",
+    });
+  }
+
+  next();
+};
 
 // isSignedIn
-module.exports.isSignedIn = (req, res) => {};
+module.exports.isSignedIn = expressJwt({
+  secret: process.env.SECRET,
+  algorithms: ["HS256"],
+  userProperty: "auth",
+});
