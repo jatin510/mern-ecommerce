@@ -119,7 +119,7 @@ module.exports.isAuthenticated = (req, res, next) => {
   next();
 };
 
-// isSignedIn
+// isSignedIn;
 module.exports.isSignedIn = expressJwt({
   secret: process.env.SECRET,
   algorithms: ["HS256"],
